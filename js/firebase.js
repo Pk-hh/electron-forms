@@ -1,4 +1,4 @@
-const useLiveFirebase = false; 
+const useLiveFirebase = true; 
 
 const firebaseConfig = {
   apiKey: "AIzaSyAlsVI16li1Qnmgu9QW702dE8V0J31zmv0",
