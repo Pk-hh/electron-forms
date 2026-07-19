@@ -1,0 +1,108 @@
+/* responsive.css */
+
+/* Tablet Viewports and smaller */
+@media (max-width: 1024px) {
+  /* Dashboard layout */
+  .dashboard-container {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .dashboard-sidebar {
+    position: fixed;
+    left: -280px;
+    top: 70px;
+    bottom: 0;
+    width: 280px;
+    z-index: 900;
+    transition: left var(--transition-normal);
+  }
+  
+  .dashboard-sidebar.active {
+    left: 0;
+  }
+  
+  /* Builder Workspace layout */
+  .builder-workspace {
+    flex-direction: column !important;
+    height: auto !important;
+    overflow-y: auto !important;
+  }
+  
+  .builder-left-panel, 
+  .builder-right-panel {
+    width: 100% !important;
+    max-height: none !important;
+    position: static !important;
+  }
+  
+  .builder-canvas-container {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
+/* Mobile Viewports */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 36px !important;
+  }
+  
+  .hero-subtitle {
+    font-size: 16px !important;
+  }
+  
+  .landing-nav .nav-links {
+    display: none !important;
+  }
+  
+  .landing-nav .mobile-menu-btn {
+    display: block !important;
+  }
+  
+  /* Stats Cards Grid */
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .forms-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Split layout on auth card */
+  .auth-card {
+    padding: 24px !important;
+  }
+  
+  /* Multi-column grid cells in preview responses view */
+  .responses-tabs-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+  
+  .responses-tabs-header .btn-group {
+    justify-content: space-between;
+  }
+  
+  /* Preview view frames scaling overrides */
+  .preview-frame-container {
+    padding: 8px !important;
+  }
+}
+
+/* Print Overrides */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .glass-card {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+}

@@ -1,0 +1,226 @@
+/* form.css */
+
+.builder-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.builder-header {
+  height: 60px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.builder-workspace {
+  display: flex;
+  flex-grow: 1;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+/* Left Panel: Toolbox */
+.builder-left-panel {
+  width: 280px;
+  border-right: 1px solid var(--border-light);
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.toolbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.toolbox-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  cursor: grab;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.toolbox-item:hover {
+  border-color: var(--accent-color);
+  background: var(--accent-light);
+  color: var(--accent-color);
+}
+
+.toolbox-item i {
+  width: 20px;
+  height: 20px;
+}
+
+.toolbox-item span {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Center Canvas */
+.builder-canvas-container {
+  flex-grow: 1;
+  background: var(--bg-primary);
+  overflow-y: auto;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.builder-canvas {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Dragging indicators */
+.sortable-ghost {
+  opacity: 0.4;
+  border: 2px dashed var(--accent-color) !important;
+}
+
+.sortable-drag {
+  opacity: 0.9;
+  transform: rotate(1deg);
+}
+
+/* Question Cards */
+.canvas-card {
+  border-left: 4px solid transparent;
+  transition: border-left-color var(--transition-fast);
+  position: relative;
+  cursor: pointer;
+}
+
+.canvas-card.active {
+  border-left-color: var(--accent-color);
+}
+
+.drag-handle {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: grab;
+  color: var(--text-tertiary);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.canvas-card:hover .drag-handle {
+  opacity: 1;
+}
+
+/* Question Option Builders */
+.options-builder {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.option-row input[type="text"] {
+  flex-grow: 1;
+}
+
+/* Right Panel: Settings Properties */
+.builder-right-panel {
+  width: 320px;
+  border-left: 1px solid var(--border-light);
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Ratings widget styling */
+.rating-builder-stars {
+  display: flex;
+  gap: 6px;
+  color: #fbbf24;
+  font-size: 20px;
+}
+
+/* Image selection cells */
+.image-choice-builder {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.image-choice-card {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.image-choice-preview {
+  height: 80px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Section divider divider */
+.section-divider-builder {
+  border-top: 2px dashed var(--border-medium);
+  padding-top: 12px;
+  margin: 12px 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Banner Image Preview inside builder settings */
+.banner-preview-box {
+  width: 100%;
+  height: 100px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  margin-top: 6px;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner-preview-box.empty::after {
+  content: "No Banner Uploaded";
+  font-size: 12px;
+  color: var(--text-secondary);
+}
