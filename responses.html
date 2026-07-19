@@ -63,7 +63,7 @@
     <div style="display: flex; align-items: center; gap: 12px;">
       <a href="dashboard.html" class="btn btn-secondary" style="padding: 6px 12px;">
         <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
-        Dashboard
+        <span>Dashboard</span>
       </a>
       <div style="height: 20px; width: 1px; background: var(--border-light);"></div>
       <span style="font-family: var(--font-display); font-weight: 600; font-size: 16px;" id="response-form-title">Loading Form Title...</span>
@@ -71,17 +71,21 @@
 
     <!-- Export Buttons -->
     <div style="display: flex; gap: 8px;">
-      <button class="btn btn-secondary" id="export-excel-btn">
+      <button class="btn btn-secondary" id="export-csv-btn" title="Export to CSV">
+        <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+        <span>CSV</span>
+      </button>
+      <button class="btn btn-secondary" id="export-excel-btn" title="Export to Excel">
         <i data-lucide="file-spreadsheet" style="width: 16px; height: 16px;"></i>
-        Excel
+        <span>Excel</span>
       </button>
-      <button class="btn btn-secondary" id="export-pdf-btn">
+      <button class="btn btn-secondary" id="export-pdf-btn" title="Export to PDF">
         <i data-lucide="file-text" style="width: 16px; height: 16px;"></i>
-        PDF Report
+        <span>PDF Report</span>
       </button>
-      <button class="btn btn-primary" onclick="window.print()">
+      <button class="btn btn-primary" onclick="window.print()" title="Print page">
         <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
-        Print
+        <span>Print</span>
       </button>
     </div>
   </header>
@@ -89,7 +93,7 @@
   <div class="responses-container">
     
     <!-- Stats Banner -->
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+    <div class="responses-stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
       <div class="glass-card" style="text-align: center; padding: 20px;">
         <h2 id="total-responses-count" style="font-size: 36px; font-family: var(--font-display); color: var(--accent-color);">0</h2>
         <span style="font-size: 13px; color: var(--text-secondary);">Total Responses</span>

@@ -23,6 +23,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadTemplates();
   await fetchAndRenderForms();
 
+  // Mobile sidebar drawer toggler logic
+  const sidebarToggle = document.getElementById('sidebar-toggle-btn');
+  const sidebar = document.querySelector('.dashboard-sidebar');
+  if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sidebar.classList.toggle('active');
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+        sidebar.classList.remove('active');
+      }
+    });
+  }
+
   // Setup tab events
   document.querySelectorAll('.sidebar-nav-item[data-tab]').forEach(item => {
     item.addEventListener('click', (e) => {
@@ -106,11 +122,13 @@ async function calculateAndRenderStats() {
   let totalResponses = 0;
   let totalViews = 0;
   const totalFormsCount = userForms.length;
+  const allResponses = [];
 
   for (const form of userForms) {
     totalViews += form.views || 0;
     const responses = await window.db.getResponses(form.id);
     totalResponses += responses.length;
+    allResponses.push(...responses);
   }
 
   const completionRate = totalViews > 0 ? Math.round((totalResponses / totalViews) * 100) : 0;
@@ -119,6 +137,112 @@ async function calculateAndRenderStats() {
   document.getElementById('stat-total-responses').textContent = totalResponses;
   document.getElementById('stat-total-views').textContent = totalViews;
   document.getElementById('stat-completion-rate').textContent = `${completionRate}%`;
+
+  renderAnalyticsChart(allResponses);
+}
+
+let submissionChartInstance = null;
+
+function renderAnalyticsChart(allResponses) {
+  const ctx = document.getElementById('dashboard-analytics-chart');
+  if (!ctx) return;
+
+  // Calculate past 7 days labels and initialize counts
+  const dates = [];
+  const counts = [];
+  const dayMs = 24 * 60 * 60 * 1000;
+  const now = Date.now();
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now - i * dayMs);
+    const label = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    dates.push(label);
+    counts.push(0);
+  }
+
+  // Populate counts
+  allResponses.forEach(resp => {
+    if (!resp.submittedAt) return;
+    const submittedDate = new Date(resp.submittedAt);
+    const diffMs = now - submittedDate.getTime();
+    const diffDays = Math.floor(diffMs / dayMs);
+    if (diffDays >= 0 && diffDays < 7) {
+      const index = 6 - diffDays;
+      counts[index]++;
+    }
+  });
+
+  // Destroy previous chart instance if exists
+  if (submissionChartInstance) {
+    submissionChartInstance.destroy();
+  }
+
+  // Get active accent color from CSS variables
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#6366f1';
+  
+  // Render Chart
+  submissionChartInstance = new Chart(ctx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        label: 'Submissions',
+        data: counts,
+        borderColor: accentColor,
+        borderWidth: 3,
+        backgroundColor: (context) => {
+          const chart = context.chart;
+          const {ctx, chartArea} = chart;
+          if (!chartArea) return null;
+          const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          gradient.addColorStop(0, accentColor + '33');
+          gradient.addColorStop(1, accentColor + '00');
+          return gradient;
+        },
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: accentColor,
+        pointHoverRadius: 7,
+        pointHoverBackgroundColor: '#ffffff',
+        pointHoverBorderColor: accentColor,
+        pointHoverBorderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.9)',
+          titleFont: { family: 'var(--font-sans)', size: 11 },
+          bodyFont: { family: 'var(--font-sans)', size: 12, weight: 'bold' },
+          padding: 10,
+          cornerRadius: 6,
+          displayColors: false
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            color: 'var(--text-secondary)',
+            font: { family: 'var(--font-sans)', size: 10 }
+          }
+        },
+        y: {
+          grid: { color: 'var(--border-light)', drawTicks: false },
+          ticks: {
+            color: 'var(--text-secondary)',
+            font: { family: 'var(--font-sans)', size: 10 },
+            stepSize: 1,
+            precision: 0
+          },
+          border: { dash: [5, 5] }
+        }
+      }
+    }
+  });
 }
 
 // Load side-bar folder tree
@@ -192,21 +316,50 @@ async function deleteFolder(event, folderId) {
 async function loadTemplates() {
   try {
     const templates = await window.db.getTemplates();
+    
+    // Modal container
     const container = document.getElementById('templates-list-container');
-    container.innerHTML = '';
+    if (container) {
+      container.innerHTML = '';
+      templates.forEach(tpl => {
+        const el = document.createElement('div');
+        el.className = 'template-item';
+        const safeColor = Utils.sanitizeColor(tpl.theme?.color);
+        el.innerHTML = `
+          <div style="background: ${safeColor}; height: 8px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin: -16px -16px 12px -16px;"></div>
+          <h4 style="font-size: 14px; margin-bottom: 4px;">${Utils.escapeHTML(tpl.title)}</h4>
+          <p style="font-size: 11px; color: var(--text-secondary); line-height: 1.4;">${Utils.escapeHTML(tpl.description)}</p>
+        `;
+        el.addEventListener('click', () => createFormFromTemplate(tpl));
+        container.appendChild(el);
+      });
+    }
 
-    templates.forEach(tpl => {
-      const el = document.createElement('div');
-      el.className = 'template-item';
-      const safeColor = Utils.sanitizeColor(tpl.theme?.color);
-      el.innerHTML = `
-        <div style="background: ${safeColor}; height: 8px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin: -16px -16px 12px -16px;"></div>
-        <h4 style="font-size: 14px; margin-bottom: 4px;">${Utils.escapeHTML(tpl.title)}</h4>
-        <p style="font-size: 11px; color: var(--text-secondary); line-height: 1.4;">${Utils.escapeHTML(tpl.description)}</p>
-      `;
-      el.addEventListener('click', () => createFormFromTemplate(tpl));
-      container.appendChild(el);
-    });
+    // Dashboard Gallery container
+    const galleryContainer = document.getElementById('templates-gallery-container');
+    if (galleryContainer) {
+      galleryContainer.innerHTML = '';
+      templates.forEach(tpl => {
+        const card = document.createElement('div');
+        card.className = 'template-gallery-card';
+        const safeColor = Utils.sanitizeColor(tpl.theme?.color);
+        card.innerHTML = `
+          <div class="template-color-bar" style="background: ${safeColor};"></div>
+          <h4>${Utils.escapeHTML(tpl.title)}</h4>
+          <p>${Utils.escapeHTML(tpl.description)}</p>
+          <div class="template-action">
+            <i data-lucide="plus-circle" style="width: 14px; height: 14px; color: var(--accent-color);"></i>
+            Use Template
+          </div>
+        `;
+        card.addEventListener('click', () => createFormFromTemplate(tpl));
+        galleryContainer.appendChild(card);
+      });
+      // Re-trigger lucide icons
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
   } catch (error) {
     console.error("Failed to load templates", error);
   }

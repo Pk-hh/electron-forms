@@ -88,19 +88,55 @@ function initPublicForm() {
     const head = document.getElementById('metadata-header-card');
     if (head) head.style.borderTopColor = safeColor;
     
-    // Logo
+    // Logo, Banner & Company Name dynamic overlap alignment styling
+    const brandArea = document.getElementById('brand-header-area');
     const logoEl = document.getElementById('public-form-logo');
-    if (formSchema.theme.logo && logoEl) {
-      logoEl.src = Utils.sanitizeURL(formSchema.theme.logo);
-      logoEl.style.display = 'block';
-    }
-
-    // Banner
+    const companyNameEl = document.getElementById('public-company-name');
     const bannerEl = document.getElementById('public-form-banner');
-    if (formSchema.theme.banner && bannerEl) {
+    
+    const hasLogo = !!(formSchema.theme.logo && logoEl);
+    const hasCompany = !!(formSchema.theme.companyName && companyNameEl);
+    const hasBanner = !!(formSchema.theme.banner && bannerEl);
+
+    // 1. Render Banner
+    if (hasBanner) {
       const safeBanner = Utils.sanitizeURL(formSchema.theme.banner);
       bannerEl.style.backgroundImage = `url('${safeBanner.replace(/'/g, "%27")}')`;
       bannerEl.style.display = 'block';
+    } else if (bannerEl) {
+      bannerEl.style.display = 'none';
+    }
+
+    // 2. Render Brand Area
+    if (brandArea) {
+      if (hasLogo || hasCompany) {
+        brandArea.style.display = 'flex';
+        
+        // Setup logo
+        if (hasLogo) {
+          logoEl.src = Utils.sanitizeURL(formSchema.theme.logo);
+          logoEl.style.display = 'block';
+        } else {
+          logoEl.style.display = 'none';
+        }
+        
+        // Setup company name
+        if (hasCompany) {
+          companyNameEl.textContent = formSchema.theme.companyName;
+          companyNameEl.style.display = 'inline-block';
+        } else {
+          companyNameEl.style.display = 'none';
+        }
+        
+        // Setup overlap margins
+        if (hasBanner) {
+          brandArea.classList.add('overlap-banner');
+        } else {
+          brandArea.classList.remove('overlap-banner');
+        }
+      } else {
+        brandArea.style.display = 'none';
+      }
     }
   }
 
@@ -125,7 +161,7 @@ function initPublicForm() {
   parseSectionsAndPages();
 
   // Show main form
-  document.getElementById('public-main-form').style.display = 'block';
+  document.getElementById('public-main-form').style.display = 'flex';
 
   // Render first page
   renderCurrentSectionPage();
@@ -312,34 +348,44 @@ function renderSubmissionInputControl(q) {
   
   if (q.type === 'yes-no') {
     return `
-      <div style="display: flex; gap: 24px; padding: 4px 0;">
-        <label style="cursor: pointer;"><input type="radio" name="q-${q.id}" value="Yes" ${currentVal === 'Yes' ? 'checked' : ''}> Yes</label>
-        <label style="cursor: pointer;"><input type="radio" name="q-${q.id}" value="No" ${currentVal === 'No' ? 'checked' : ''}> No</label>
+      <div class="choice-card-wrapper" style="display: flex; gap: 16px; margin-top: 8px;">
+        <label class="choice-card ${currentVal === 'Yes' ? 'selected' : ''}" style="flex: 1; justify-content: center;">
+          <input type="radio" name="q-${q.id}" value="Yes" ${currentVal === 'Yes' ? 'checked' : ''}>
+          <span>Yes</span>
+        </label>
+        <label class="choice-card ${currentVal === 'No' ? 'selected' : ''}" style="flex: 1; justify-content: center;">
+          <input type="radio" name="q-${q.id}" value="No" ${currentVal === 'No' ? 'checked' : ''}>
+          <span>No</span>
+        </label>
       </div>
     `;
   }
 
   if (q.type === 'multiple-choice') {
-    return (q.options || []).map(opt => `
-      <div style="padding: 6px 0;">
-        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
-          <input type="radio" name="q-${q.id}" value="${Utils.escapeHTML(opt)}" ${currentVal === opt ? 'checked' : ''}>
-          <span>${Utils.escapeHTML(opt)}</span>
-        </label>
+    return `
+      <div class="choice-card-wrapper" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+        ${(q.options || []).map(opt => `
+          <label class="choice-card ${currentVal === opt ? 'selected' : ''}">
+            <input type="radio" name="q-${q.id}" value="${Utils.escapeHTML(opt)}" ${currentVal === opt ? 'checked' : ''}>
+            <span>${Utils.escapeHTML(opt)}</span>
+          </label>
+        `).join('')}
       </div>
-    `).join('');
+    `;
   }
 
   if (q.type === 'checkbox') {
     const list = Array.isArray(currentVal) ? currentVal : [];
-    return (q.options || []).map(opt => `
-      <div style="padding: 6px 0;">
-        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" name="q-${q.id}" value="${Utils.escapeHTML(opt)}" ${list.includes(opt) ? 'checked' : ''}>
-          <span>${Utils.escapeHTML(opt)}</span>
-        </label>
+    return `
+      <div class="choice-card-wrapper" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+        ${(q.options || []).map(opt => `
+          <label class="choice-card ${list.includes(opt) ? 'selected' : ''}">
+            <input type="checkbox" name="q-${q.id}" value="${Utils.escapeHTML(opt)}" ${list.includes(opt) ? 'checked' : ''}>
+            <span>${Utils.escapeHTML(opt)}</span>
+          </label>
+        `).join('')}
       </div>
-    `).join('');
+    `;
   }
 
   if (q.type === 'dropdown') {
@@ -380,7 +426,7 @@ function renderSubmissionInputControl(q) {
           <span>${Utils.escapeHTML(q.minLabel || 'Min')}</span>
           <span>${Utils.escapeHTML(q.maxLabel || 'Max')}</span>
         </div>
-        <div style="display: flex; gap: 12px; justify-content: space-between;">
+        <div class="linear-scale-group" style="display: flex; gap: 12px; justify-content: space-between;">
           ${Array.from({ length: (maxVal - minVal + 1) }).map((_, idx) => {
             const score = minVal + idx;
             return `
@@ -420,13 +466,14 @@ function bindControlChangeEvents(cardEl, q) {
   // Star rating handler
   const starsContainer = cardEl.querySelector('.submit-rating-stars');
   if (starsContainer) {
-    starsContainer.querySelectorAll('i').forEach(star => {
-      star.addEventListener('click', () => {
+    starsContainer.addEventListener('click', (e) => {
+      const star = e.target.closest('[data-score]');
+      if (star) {
         const score = parseInt(star.getAttribute('data-score'));
         userAnswers[q.id] = score;
         
-        // Re-render filled classes on stars
-        starsContainer.querySelectorAll('i').forEach((s, idx) => {
+        // Re-render filled classes on stars (which are now SVG elements)
+        starsContainer.querySelectorAll('[data-score]').forEach((s, idx) => {
           if (idx < score) {
             s.classList.add('active');
             s.style.color = '#fbbf24';
@@ -439,7 +486,7 @@ function bindControlChangeEvents(cardEl, q) {
         });
         
         checkConditionalVisibilityRulesCascade();
-      });
+      }
     });
   }
 
@@ -493,6 +540,16 @@ function bindControlChangeEvents(cardEl, q) {
   // Multiple checkboxes updates (stores arrays)
   cardEl.querySelectorAll('input[type="checkbox"]').forEach(box => {
     box.addEventListener('change', () => {
+      // Toggle selected class on closest choice-card wrapper
+      const choiceCard = box.closest('.choice-card');
+      if (choiceCard) {
+        if (box.checked) {
+          choiceCard.classList.add('selected');
+        } else {
+          choiceCard.classList.remove('selected');
+        }
+      }
+
       userAnswers[q.id] = userAnswers[q.id] || [];
       const checkedVals = Array.from(cardEl.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.value);
       userAnswers[q.id] = checkedVals;
@@ -504,6 +561,18 @@ function bindControlChangeEvents(cardEl, q) {
   cardEl.querySelectorAll('input[type="radio"]').forEach(rad => {
     rad.addEventListener('change', (e) => {
       if (e.target.checked) {
+        // Remove selected class from all option siblings in same radio card group
+        const wrapper = rad.closest('.choice-card-wrapper');
+        if (wrapper) {
+          wrapper.querySelectorAll('.choice-card').forEach(cc => cc.classList.remove('selected'));
+        }
+        
+        // Add selected class to the active choice-card label
+        const choiceCard = rad.closest('.choice-card');
+        if (choiceCard) {
+          choiceCard.classList.add('selected');
+        }
+
         userAnswers[q.id] = e.target.value;
         checkConditionalVisibilityRulesCascade();
       }

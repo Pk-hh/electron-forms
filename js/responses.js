@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('delete-individual-btn').addEventListener('click', deleteActiveResponse);
 
     // Export binds
+    document.getElementById('export-csv-btn').addEventListener('click', exportToCSV);
     document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
     document.getElementById('export-pdf-btn').addEventListener('click', exportToPDF);
 
@@ -358,6 +359,58 @@ async function deleteActiveResponse() {
       Utils.showToast("Failed to delete response", "error");
     }
   }
+}
+
+// Export response logs to CSV
+function exportToCSV() {
+  if (formResponses.length === 0) {
+    Utils.showToast("No response data available to export.", "warning");
+    return;
+  }
+
+  const headers = ['Respondent Email', 'Submitted Time'];
+  formSchema.questions.forEach(q => {
+    if (q.type !== 'section-divider') headers.push(q.title);
+  });
+
+  const csvRows = [];
+  const escapeCSV = (val) => {
+    if (val === undefined || val === null) return '';
+    const str = String(val);
+    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
+  csvRows.push(headers.map(escapeCSV).join(','));
+
+  formResponses.forEach(r => {
+    const row = [r.email || 'Anonymous', Utils.formatDate(r.submittedAt)];
+    formSchema.questions.forEach(q => {
+      if (q.type === 'section-divider') return;
+      const ansVal = r.answers[q.id];
+      if (ansVal && typeof ansVal === 'object' && ansVal.name) {
+        row.push(ansVal.name);
+      } else if (Array.isArray(ansVal)) {
+        row.push(ansVal.join('; '));
+      } else {
+        row.push(ansVal !== undefined ? ansVal : '');
+      }
+    });
+    csvRows.push(row.map(escapeCSV).join(','));
+  });
+
+  const csvContent = "\uFEFF" + csvRows.join("\r\n"); // UTF-8 BOM + CRLF
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${formSchema.title.replace(/\s+/g, '_')}_Responses.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  Utils.showToast("CSV file downloaded successfully!", "success");
 }
 
 // Export response logs to Excel via SheetJS

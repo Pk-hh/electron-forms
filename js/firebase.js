@@ -44,12 +44,13 @@ class LocalStorageAdapter {
           questions: [
             { id: 'q1', type: 'rating', title: 'How satisfied are you with our product?', required: true, helpText: 'Rate from 1 to 5 stars.' },
             { id: 'q2', type: 'multiple-choice', title: 'How often do you use our product?', required: true, options: ['Daily', 'Weekly', 'Monthly', 'Rarely'] },
-            { id: 'q3', type: 'paragraph', title: 'What is the single most important improvement we could make?', required: false }
+            { id: 'q3', type: 'paragraph', title: 'What is the single most important improvement we could make?', required: false },
+            { id: 'q4', type: 'signature', title: 'Please sign below to authenticate your feedback', required: true }
           ]
         },
         {
           id: 'template_event',
-          title: 'Event Registration Form',
+          title: 'Event RSVP Registration',
           description: 'RSVP collection form for conferences, workshops, or webinars.',
           isTemplate: true,
           theme: {
@@ -61,13 +62,14 @@ class LocalStorageAdapter {
             { id: 'qe1', type: 'short-answer', title: 'Full Name', required: true },
             { id: 'qe2', type: 'email', title: 'Email Address', required: true },
             { id: 'qe3', type: 'multiple-choice', title: 'Dietary Preferences', required: false, options: ['None', 'Vegetarian', 'Vegan', 'Gluten-Free'] },
-            { id: 'qe4', type: 'yes-no', title: 'Will you attend the networking dinner?', required: true }
+            { id: 'qe4', type: 'yes-no', title: 'Will you attend the networking dinner?', required: true },
+            { id: 'qe5', type: 'signature', title: 'Signature RSVP Validation', required: true }
           ]
         },
         {
-          id: 'template_job',
-          title: 'Job Application Form',
-          description: 'Streamlined intake form for recruiting teams and candidate hiring.',
+          id: 'template_contact',
+          title: 'Contact & Query Form',
+          description: 'Standard support intake, category billing selection, and general inquiry form.',
           isTemplate: true,
           theme: {
             color: '#f59e0b',
@@ -75,10 +77,10 @@ class LocalStorageAdapter {
             font: 'var(--font-sans)'
           },
           questions: [
-            { id: 'qj1', type: 'short-answer', title: 'Position Applied For', required: true },
-            { id: 'qj2', type: 'phone', title: 'Phone Number', required: true },
-            { id: 'qj3', type: 'url', title: 'Portfolio / LinkedIn Profile', required: false },
-            { id: 'qj4', type: 'file', title: 'Upload Resume / CV', required: true, helpText: 'PDF format preferred.' }
+            { id: 'qc1', type: 'email', title: 'Your Email Address', required: true },
+            { id: 'qc2', type: 'multiple-choice', title: 'Select Query Category', required: true, options: ['Billing & Invoices', 'Technical Support', 'Partnerships', 'General Inquiry'] },
+            { id: 'qc3', type: 'paragraph', title: 'Describe your query details', required: true },
+            { id: 'qc4', type: 'signature', title: 'Sender Signature (Optional)', required: false }
           ]
         }
       ];
@@ -440,23 +442,52 @@ class LiveFirebaseAdapter {
         id: 'template_satisfaction',
         title: 'Customer Satisfaction Survey',
         description: 'Gather feedback about your products and customer support quality.',
-        theme: { color: '#6366f1', banner: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80', font: 'var(--font-sans)' },
+        isTemplate: true,
+        theme: {
+          color: '#6366f1',
+          banner: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+          font: 'var(--font-sans)'
+        },
         questions: [
           { id: 'q1', type: 'rating', title: 'How satisfied are you with our product?', required: true, helpText: 'Rate from 1 to 5 stars.' },
           { id: 'q2', type: 'multiple-choice', title: 'How often do you use our product?', required: true, options: ['Daily', 'Weekly', 'Monthly', 'Rarely'] },
-          { id: 'q3', type: 'paragraph', title: 'What is the single most important improvement we could make?', required: false }
+          { id: 'q3', type: 'paragraph', title: 'What is the single most important improvement we could make?', required: false },
+          { id: 'q4', type: 'signature', title: 'Please sign below to authenticate your feedback', required: true }
         ]
       },
       {
         id: 'template_event',
-        title: 'Event Registration Form',
+        title: 'Event RSVP Registration',
         description: 'RSVP collection form for conferences, workshops, or webinars.',
-        theme: { color: '#10b981', banner: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80', font: 'var(--font-sans)' },
+        isTemplate: true,
+        theme: {
+          color: '#10b981',
+          banner: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80',
+          font: 'var(--font-sans)'
+        },
         questions: [
           { id: 'qe1', type: 'short-answer', title: 'Full Name', required: true },
           { id: 'qe2', type: 'email', title: 'Email Address', required: true },
           { id: 'qe3', type: 'multiple-choice', title: 'Dietary Preferences', required: false, options: ['None', 'Vegetarian', 'Vegan', 'Gluten-Free'] },
-          { id: 'qe4', type: 'yes-no', title: 'Will you attend the networking dinner?', required: true }
+          { id: 'qe4', type: 'yes-no', title: 'Will you attend the networking dinner?', required: true },
+          { id: 'qe5', type: 'signature', title: 'Signature RSVP Validation', required: true }
+        ]
+      },
+      {
+        id: 'template_contact',
+        title: 'Contact & Query Form',
+        description: 'Standard support intake, category billing selection, and general inquiry form.',
+        isTemplate: true,
+        theme: {
+          color: '#f59e0b',
+          banner: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1200&q=80',
+          font: 'var(--font-sans)'
+        },
+        questions: [
+          { id: 'qc1', type: 'email', title: 'Your Email Address', required: true },
+          { id: 'qc2', type: 'multiple-choice', title: 'Select Query Category', required: true, options: ['Billing & Invoices', 'Technical Support', 'Partnerships', 'General Inquiry'] },
+          { id: 'qc3', type: 'paragraph', title: 'Describe your query details', required: true },
+          { id: 'qc4', type: 'signature', title: 'Sender Signature (Optional)', required: false }
         ]
       }
     ];

@@ -14,6 +14,12 @@
 </head>
 <body>
 
+  <!-- Animated Background Mesh -->
+  <div class="mesh-bg">
+    <div class="mesh-circle circle-1"></div>
+    <div class="mesh-circle circle-2"></div>
+  </div>
+
   <div class="builder-layout">
     
     <!-- Top Editor Header -->
@@ -44,17 +50,17 @@
 
         <button class="btn btn-secondary" onclick="openLivePreviewTab()">
           <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
-          Live Preview
+          <span>Live Preview</span>
         </button>
 
         <button class="btn btn-primary" id="publish-form-btn">
           <i data-lucide="send" style="width: 16px; height: 16px;"></i>
-          Publish Form
+          <span>Publish Form</span>
         </button>
       </div>
     </header>
 
-    <div class="builder-workspace">
+    <div class="builder-workspace show-canvas">
       
       <!-- Left Panel: Toolbox of questions -->
       <aside class="builder-left-panel glass-panel">
@@ -181,6 +187,11 @@
         </div>
 
         <div class="form-group">
+          <label class="form-label">Company Name</label>
+          <input type="text" id="settings-company-name" class="form-control" placeholder="e.g. Electron Studios">
+        </div>
+
+        <div class="form-group">
           <label class="form-label">Font Family</label>
           <select id="settings-font-style" class="form-control">
             <option value="var(--font-sans)">Sans-serif (Inter)</option>
@@ -270,6 +281,22 @@
         </div>
       </form>
     </div>
+  </div>
+
+  <!-- Mobile Tab Navigation Bar -->
+  <div class="mobile-builder-tabs" style="display: none;">
+    <button class="mobile-tab-item" onclick="switchMobileTab('toolbox')">
+      <i data-lucide="layout-grid"></i>
+      <span>Toolbox</span>
+    </button>
+    <button class="mobile-tab-item active" onclick="switchMobileTab('canvas')">
+      <i data-lucide="file-text"></i>
+      <span>Canvas</span>
+    </button>
+    <button class="mobile-tab-item" onclick="switchMobileTab('settings')">
+      <i data-lucide="settings"></i>
+      <span>Settings</span>
+    </button>
   </div>
 
   <!-- Scripts -->
