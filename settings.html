@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workspace Settings - Electron Forms</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar glass-panel">
+      <div class="sidebar-brand">
+        <i data-lucide="check-square" style="color: var(--accent-color); width: 28px; height: 28px;"></i>
+        <span>Electron Forms</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-nav-item">
+          <i data-lucide="arrow-left"></i>
+          <span>Back to Dashboard</span>
+        </a>
+        <a href="profile.html" class="sidebar-nav-item">
+          <i data-lucide="user"></i>
+          <span>Profile Settings</span>
+        </a>
+        <a href="settings.html" class="sidebar-nav-item active">
+          <i data-lucide="settings"></i>
+          <span>Workspace Settings</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div style="border-top: 1px solid var(--border-light); padding-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+        <button id="theme-toggle-btn" class="sidebar-nav-item" style="background: transparent; border: none; width: 100%; text-align: left;">
+          <i data-lucide="moon"></i>
+          <span>Toggle Theme</span>
+        </button>
+        <button id="signout-btn" class="sidebar-nav-item" style="background: transparent; border: none; width: 100%; text-align: left; color: var(--danger);">
+          <i data-lucide="log-out"></i>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main" style="padding: 40px; overflow-y: auto;">
+      <h2 style="margin-bottom: 24px;">Workspace Settings</h2>
+
+      <div class="glass-card" style="max-width: 600px; margin-bottom: 24px;">
+        <h3 style="font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="layout" style="color: var(--accent-color);"></i> General Workspace Config
+        </h3>
+        
+        <form id="workspace-settings-form">
+          <div class="form-group">
+            <label for="workspace-name" class="form-label">Workspace Name</label>
+            <input type="text" id="workspace-name" class="form-control" value="My Creative Workspace" required>
+          </div>
+
+          <div class="form-group">
+            <label for="default-theme-pref" class="form-label">Default Theme Preference</label>
+            <select id="default-theme-pref" class="form-control">
+              <option value="light">Light Mode</option>
+              <option value="dark">Dark Mode</option>
+              <option value="system">Follow System</option>
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; margin-top: 8px;">
+            <div>
+              <span style="font-size: 14px; font-weight: 500; display: block;">Email Notifications Digest</span>
+              <span style="font-size: 11px; color: var(--text-secondary);">Receive weekly summaries of form response records.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="digest-toggle" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div style="text-align: right; margin-top: 24px;">
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Developer Info / Storage utilization -->
+      <div class="glass-card" style="max-width: 600px; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.02);">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: var(--danger); display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="database"></i> System & Data Management
+        </h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+          This workspace is running in Local Storage mode. You can view storage usage details or wipe clean all mock databases below.
+        </p>
+
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-md);">
+          <span>Database Engine: <strong>LocalStorage Fallback</strong></span>
+          <span id="storage-size-label">Storage size: 0.00 KB</span>
+        </div>
+
+        <button class="btn btn-danger" onclick="wipeLocalDatabases()">
+          <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+          Wipe All Workspace Databases
+        </button>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/theme.js"></script>
+  <script src="js/utils.js"></script>
+    <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Calculate localstorage bytes count
+      calculateStorageUsage();
+
+      document.getElementById('workspace-settings-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        Utils.showToast("Workspace configurations saved!", "success");
+      });
+
+      if (window.lucide) window.lucide.createIcons();
+    });
+
+    function calculateStorageUsage() {
+      let totalBytes = 0;
+      for (const key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+          totalBytes += (localStorage[key].length + key.length) * 2; // UTF-16
+        }
+      }
+      const kb = (totalBytes / 1024).toFixed(2);
+      document.getElementById('storage-size-label').textContent = `Storage size: ${kb} KB`;
+    }
+
+    function wipeLocalDatabases() {
+      if (confirm("WARNING: This will wipe out all forms, respondents records, custom folders, and user accounts. This action is final. Are you sure?")) {
+        localStorage.clear();
+        Utils.showToast("All databases wiped. Reloading workspace...", "info");
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+      }
+    }
+  </script>
+</body>
+</html>

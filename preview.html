@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Preview - Electron Forms</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      background: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .preview-header {
+      height: 60px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+    }
+    .preview-body {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.02);
+    }
+    /* Device Frame Styling */
+    .device-wrapper {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-xl);
+      border: 12px solid #111827; /* Dark bezel */
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      transition: all var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .device-desktop {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .device-tablet {
+      width: 768px;
+      height: 900px;
+    }
+    .device-mobile {
+      width: 375px;
+      height: 720px;
+    }
+    .preview-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: var(--bg-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Preview Controller Bar -->
+  <header class="preview-header">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <i data-lucide="eye" style="color: var(--accent-color); width: 22px; height: 22px;"></i>
+      <span style="font-family: var(--font-display); font-weight: 600; font-size: 15px;">Real-Time Form Preview</span>
+    </div>
+
+    <!-- Toggle devices widths -->
+    <div class="btn-group" style="display: flex; gap: 4px; background: var(--bg-tertiary); padding: 4px; border-radius: var(--radius-md);">
+      <button class="btn btn-icon active" id="prev-btn-desktop" onclick="resizePreview('desktop')">
+        <i data-lucide="monitor" style="width: 16px; height: 16px;"></i>
+      </button>
+      <button class="btn btn-icon" id="prev-btn-tablet" onclick="resizePreview('tablet')">
+        <i data-lucide="tablet" style="width: 16px; height: 16px;"></i>
+      </button>
+      <button class="btn btn-icon" id="prev-btn-mobile" onclick="resizePreview('smartphone')">
+        <i data-lucide="smartphone" style="width: 16px; height: 16px;"></i>
+      </button>
+    </div>
+
+    <div>
+      <button class="btn btn-secondary" onclick="window.close()">Close Preview</button>
+    </div>
+  </header>
+
+  <!-- Frame Holder -->
+  <div class="preview-body">
+    <div id="preview-device-wrapper" class="device-wrapper device-desktop">
+      <iframe src="form.html?preview=true" id="preview-frame" class="preview-iframe"></iframe>
+    </div>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+    // Read device query param
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const dev = urlParams.get('device') || 'desktop';
+      resizePreview(dev === 'smartphone' ? 'mobile' : dev);
+      
+      if (window.lucide) window.lucide.createIcons();
+    });
+
+    function resizePreview(device) {
+      const wrapper = document.getElementById('preview-device-wrapper');
+      
+      // Clean classes
+      wrapper.className = 'device-wrapper';
+      
+      document.querySelectorAll('.btn-group .btn-icon').forEach(btn => btn.classList.remove('active'));
+
+      if (device === 'desktop' || device === 'monitor') {
+        wrapper.classList.add('device-desktop');
+        document.getElementById('prev-btn-desktop').classList.add('active');
+      } else if (device === 'tablet') {
+        wrapper.classList.add('device-tablet');
+        document.getElementById('prev-btn-tablet').classList.add('active');
+      } else {
+        wrapper.classList.add('device-mobile');
+        document.getElementById('prev-btn-mobile').classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>

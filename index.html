@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electron Studios Forms - Premium Forms SaaS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Animated Mesh Background -->
+  <div class="mesh-background" style="
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 75% 25%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 25% 75%, rgba(168, 85, 247, 0.12) 0%, transparent 40%);
+    z-index: -1;
+    animation: rotate-bg 30s linear infinite;
+  "></div>
+
+  <style>
+    @keyframes rotate-bg {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .landing-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 8%;
+      border-bottom: 1px solid var(--border-light);
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: var(--font-display);
+      color: var(--text-primary);
+    }
+    
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    
+    .nav-link {
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: color var(--transition-fast);
+    }
+    
+    .nav-link:hover {
+      color: var(--text-primary);
+    }
+
+    .hero-section {
+      text-align: center;
+      padding: 120px 8% 80px 8%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .badge-hero {
+      margin-bottom: 24px;
+      font-size: 13px;
+      padding: 6px 16px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .hero-title {
+      font-size: 56px;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-hover) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      line-height: 1.6;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-group {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 80px;
+    }
+
+    /* Grid Layouts */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      padding: 80px 8%;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+      padding: 80px 8%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Accordion FAQ */
+    .faq-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 80px 8%;
+    }
+    
+    .faq-item {
+      margin-bottom: 16px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+    }
+
+    .faq-question {
+      width: 100%;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: none;
+      text-align: left;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background var(--transition-fast);
+    }
+    
+    .faq-question:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height var(--transition-normal) ease-out;
+      background: var(--bg-secondary);
+    }
+
+    .faq-answer p {
+      padding: 0 20px 20px 20px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+    }
+
+    .faq-item.active i {
+      transform: rotate(180deg);
+    }
+    
+    .faq-question i {
+      transition: transform var(--transition-normal);
+    }
+
+    .footer {
+      border-top: 1px solid var(--border-light);
+      padding: 40px 8%;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+  </style>
+
+  <!-- Navbar -->
+  <nav class="landing-nav glass-panel">
+    <div class="logo-container">
+      <i data-lucide="check-square" style="color: var(--accent-color); width: 28px; height: 28px;"></i>
+      <span>Electron Forms</span>
+    </div>
+    
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#templates" class="nav-link">Templates</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#faq" class="nav-link">FAQ</a>
+      
+      <!-- Theme Switcher -->
+      <button id="theme-toggle-btn" class="btn-icon" aria-label="Toggle Theme">
+        <i data-lucide="moon"></i>
+      </button>
+      
+      <a href="login.html" class="btn btn-secondary">Sign In</a>
+      <a href="register.html" class="btn btn-primary">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero-section">
+    <span class="badge badge-primary badge-hero">AI-Powered Form SaaS Builder</span>
+    <h1 class="hero-title">Beautiful forms. Seamless responses. Powered by AI.</h1>
+    <p class="hero-subtitle">
+      Create premium Apple-style glassmorphic forms in seconds. Connect your audience, collect feedback, view clean visual charts, and export results in Excel, CSV, or PDF instantly.
+    </p>
+    <div class="cta-group">
+      <a href="register.html" class="btn btn-primary" style="padding: 14px 28px; font-size: 16px;">
+        Create Your First Form
+        <i data-lucide="arrow-right"></i>
+      </a>
+      <a href="#features" class="btn btn-secondary" style="padding: 14px 28px; font-size: 16px;">
+        See How It Works
+      </a>
+    </div>
+    
+    <!-- Hero Mockup Display -->
+    <div class="glass-card" style="padding: 12px; max-width: 800px; margin: 0 auto; border-radius: var(--radius-xl);">
+      <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80" alt="Dashboard Mockup" style="width: 100%; border-radius: var(--radius-lg); display: block; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+    </div>
+  </header>
+
+  <!-- Features Section -->
+  <section id="features" class="features-grid">
+    <div class="glass-card">
+      <i data-lucide="sparkles" style="color: #a855f7; width: 36px; height: 36px; margin-bottom: 16px;"></i>
+      <h3>AI-Powered Generator</h3>
+      <p style="color: var(--text-secondary); margin-top: 8px; font-size: 14px; line-height: 1.5;">
+        Generate complete forms containing validations, dropdowns, and rating scales with a single text prompt. Let the AI model outline your surveys.
+      </p>
+    </div>
+    <div class="glass-card">
+      <i data-lucide="layout" style="color: #6366f1; width: 36px; height: 36px; margin-bottom: 16px;"></i>
+      <h3>Interactive Builder</h3>
+      <p style="color: var(--text-secondary); margin-top: 8px; font-size: 14px; line-height: 1.5;">
+        Choose from 17+ core question elements. Rearrange easily with simple Sortable drag-and-drop mechanics. Customize logos, color themes, and banners.
+      </p>
+    </div>
+    <div class="glass-card">
+      <i data-lucide="bar-chart-2" style="color: #10b981; width: 36px; height: 36px; margin-bottom: 16px;"></i>
+      <h3>Advanced Analytics</h3>
+      <p style="color: var(--text-secondary); margin-top: 8px; font-size: 14px; line-height: 1.5;">
+        View responses automatically compiled in real-time. Review pie charts, export rows into Excel, generate branded PDF logs, or print submissions directly.
+      </p>
+    </div>
+  </section>
+
+  <!-- Templates Showcase Section -->
+  <section id="templates" style="padding: 80px 8%; text-align: center;">
+    <h2 style="font-size: 32px; margin-bottom: 16px;">Pre-designed templates for any workflow</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 48px;">Get started in seconds with our highly optimized response cards.</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+      <div class="glass-card" style="text-align: left;">
+        <div style="background: var(--accent-gradient); height: 120px; border-radius: var(--radius-md) var(--radius-md) 0 0; margin: -24px -24px 20px -24px; position: relative;"></div>
+        <h4>Customer Feedback</h4>
+        <p style="color: var(--text-secondary); font-size: 13px; margin: 8px 0 16px 0;">Gauge client satisfaction, support quality, and net promoter scores.</p>
+        <a href="register.html" class="btn btn-secondary" style="width: 100%;">Use Template</a>
+      </div>
+      <div class="glass-card" style="text-align: left;">
+        <div style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); height: 120px; border-radius: var(--radius-md) var(--radius-md) 0 0; margin: -24px -24px 20px -24px; position: relative;"></div>
+        <h4>Event Invitation RSVP</h4>
+        <p style="color: var(--text-secondary); font-size: 13px; margin: 8px 0 16px 0;">Track dietary choices, RSVPs, networking requests, and guest details.</p>
+        <a href="register.html" class="btn btn-secondary" style="width: 100%;">Use Template</a>
+      </div>
+      <div class="glass-card" style="text-align: left;">
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); height: 120px; border-radius: var(--radius-md) var(--radius-md) 0 0; margin: -24px -24px 20px -24px; position: relative;"></div>
+        <h4>Job Application Portal</h4>
+        <p style="color: var(--text-secondary); font-size: 13px; margin: 8px 0 16px 0;">Standardize intake procedures, collect portfolio URLs, and receive resumes.</p>
+        <a href="register.html" class="btn btn-secondary" style="width: 100%;">Use Template</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" style="padding: 80px 8%; text-align: center;">
+    <h2 style="font-size: 32px; margin-bottom: 16px;">Sleek plans tailored to your needs</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 48px;">No hidden contracts or setup fees.</p>
+    
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="glass-card">
+        <h4 style="font-size: 20px;">Developer Free</h4>
+        <div style="font-size: 36px; font-weight: 800; font-family: var(--font-display); margin: 16px 0;">$0 <span style="font-size: 14px; color: var(--text-secondary); font-weight: 400;">/ month</span></div>
+        <ul style="text-align: left; list-style: none; color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px;">
+          <li><i data-lucide="check" style="width: 16px; height: 16px; color: var(--success); vertical-align: middle; margin-right: 8px;"></i> 5 active forms</li>
+          <li><i data-lucide="check" style="width: 16px; height: 16px; color: var(--success); vertical-align: middle; margin-right: 8px;"></i> 100 responses per form</li>
+          <li><i data-lucide="check" style="width: 16px; height: 16px; color: var(--success); vertical-align: middle; margin-right: 8px;"></i> Basic charts & tables</li>
+          <li><i data-lucide="check" style="width: 16px; height: 16px; color: var(--success); vertical-align: middle; margin-right: 8px;"></i> Google Auth support</li>
+        </ul>
+        <a href="register.html" class="btn btn-secondary" style="width: 100%;">Start Building</a>
+      </div>
+      <!-- Pro -->
+      <div class="glass-card" style="border: 2px solid var(--accent-color); position: relative; transform: scale(1.05);">
+        <span class="badge badge-primary" style="position: absolute; top: -12px; right: 24px;">Recommended</span>
+        <h4 style="font-size: 20px;">Creator Pro</h4>
+        <div style="font-size: 36px; font-weight: 800; font-family: var(--font-display); margin: 16px 0;">$19 <span style="font-size: 14px; color: var(--text-secondary); font-weight: 400;">/ month</span></div>
+        <ul style="text-align: left; list-style: none; color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px;">
+          <li><i data-lucide="check" style="width: 16px; height: 16px; color: var(--success); vertical-align: middle; margin-right: 8px;"></i> Unlimited active forms</li>
+          <li><i data-lucide="check" style="width: 16px; height: 16px; color: var(--success); vertical-align: middle; margin-right: 8px;"></i> Unlimited responses</li>
+          <li><i data-lucide="check" style="width: 16px; height: 16px; color: var(--success); vertical-align: middle; margin-right: 8px;"></i> Full Excel, CSV, PDF exporting</li>
+          <li><i data-lucide="check" style="width: 16px; height: 16px; color: var(--success); vertical-align: middle; margin-right: 8px;"></i> Custom banners and theme styles</li>
+          <li><i data-lucide="check" style="width: 16px; height: 16px; color: var(--success); vertical-align: middle; margin-right: 8px;"></i> Password validation protection</li>
+        </ul>
+        <a href="register.html" class="btn btn-primary" style="width: 100%;">Upgrade to Pro</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="faq-section">
+    <h2 style="font-size: 32px; text-align: center; margin-bottom: 40px;">Frequently Asked Questions</h2>
+    
+    <div class="faq-item">
+      <button class="faq-question">
+        <span>Can I download response submissions offline?</span>
+        <i data-lucide="chevron-down"></i>
+      </button>
+      <div class="faq-answer">
+        <p>Absolutely! The analytics panel enables you to pull spreadsheet tables into CSV and XLSX file formats via SheetJS, or compile individual profiles into styled PDFs via jsPDF.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        <span>Is there an automated saving mechanic while building?</span>
+        <i data-lucide="chevron-down"></i>
+      </button>
+      <div class="faq-answer">
+        <p>Yes. The form builder auto-saves your form structures as drafts in real-time, meaning you never lose edits when switching tabs or closing your browser.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        <span>Does the system support conditional rules for fields?</span>
+        <i data-lucide="chevron-down"></i>
+      </button>
+      <div class="faq-answer">
+        <p>Yes. Questions support target visibility rules that check the states of prior entries to conditionally hide or show inputs dynamically.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2026 Electron Studios Forms. All rights reserved. Created with design and performance in mind.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/theme.js"></script>
+  <script src="js/utils.js"></script>
+    <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+  
+  <script>
+    // FAQ Accordion Trigger
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.parentElement;
+        const isActive = item.classList.contains('active');
+        
+        // Close other FAQ items
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+        
+        if (!isActive) {
+          item.classList.add('active');
+        }
+      });
+    });
+
+    // Run lucide icons on load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>

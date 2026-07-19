@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics & Responses - Electron Forms</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS (XLSX) CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- jsPDF & AutoTable CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  
+  <style>
+    .responses-container {
+      padding: 40px;
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    
+    .responses-tabs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+
+    .chart-box {
+      width: 100%;
+      height: 280px;
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Individual respondent slide styling */
+    .individual-navigator {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="dashboard-header glass-panel no-print" style="position: sticky; top: 0; z-index: 100;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <a href="dashboard.html" class="btn btn-secondary" style="padding: 6px 12px;">
+        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+        Dashboard
+      </a>
+      <div style="height: 20px; width: 1px; background: var(--border-light);"></div>
+      <span style="font-family: var(--font-display); font-weight: 600; font-size: 16px;" id="response-form-title">Loading Form Title...</span>
+    </div>
+
+    <!-- Export Buttons -->
+    <div style="display: flex; gap: 8px;">
+      <button class="btn btn-secondary" id="export-excel-btn">
+        <i data-lucide="file-spreadsheet" style="width: 16px; height: 16px;"></i>
+        Excel
+      </button>
+      <button class="btn btn-secondary" id="export-pdf-btn">
+        <i data-lucide="file-text" style="width: 16px; height: 16px;"></i>
+        PDF Report
+      </button>
+      <button class="btn btn-primary" onclick="window.print()">
+        <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
+        Print
+      </button>
+    </div>
+  </header>
+
+  <div class="responses-container">
+    
+    <!-- Stats Banner -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+      <div class="glass-card" style="text-align: center; padding: 20px;">
+        <h2 id="total-responses-count" style="font-size: 36px; font-family: var(--font-display); color: var(--accent-color);">0</h2>
+        <span style="font-size: 13px; color: var(--text-secondary);">Total Responses</span>
+      </div>
+      <div class="glass-card" style="text-align: center; padding: 20px;">
+        <h2 id="form-views-count" style="font-size: 36px; font-family: var(--font-display); color: var(--success);">0</h2>
+        <span style="font-size: 13px; color: var(--text-secondary);">Total Views</span>
+      </div>
+      <div class="glass-card" style="text-align: center; padding: 20px;">
+        <h2 id="form-completion-rate" style="font-size: 36px; font-family: var(--font-display); color: var(--warning);">0%</h2>
+        <span style="font-size: 13px; color: var(--text-secondary);">Completion Rate</span>
+      </div>
+    </div>
+
+    <!-- Tab Selection header bar -->
+    <div class="responses-tabs-header no-print">
+      <div class="btn-group" style="display: flex; gap: 8px;">
+        <button class="btn btn-text active" id="tab-summary-btn">Summary View</button>
+        <button class="btn btn-text" id="tab-individual-btn">Individual Logs</button>
+      </div>
+
+      <!-- Quick responses search inputs -->
+      <div id="search-filter-box" style="display: none; width: 240px; position: relative;">
+        <input type="text" id="respondents-search" class="form-control" placeholder="Search by email..." style="padding-left: 36px; font-size: 13px; padding-top: 6px; padding-bottom: 6px;">
+        <i data-lucide="search" style="position: absolute; left: 10px; top: 8px; width: 16px; height: 16px; color: var(--text-secondary);"></i>
+      </div>
+    </div>
+
+    <!-- Panel 1: Summary aggregate data charts -->
+    <section id="panel-summary" class="responses-panel">
+      <!-- Empty state inside panels -->
+      <div id="summary-empty-state" class="glass-card" style="text-align: center; padding: 48px; display: none;">
+        <i data-lucide="database" style="width: 48px; height: 48px; color: var(--text-tertiary); margin-bottom: 12px;"></i>
+        <h3>No responses received yet</h3>
+        <p style="color: var(--text-secondary); font-size: 13px;">Publish your form and share the link to start collecting feedback.</p>
+      </div>
+
+      <!-- List of question statistics summary -->
+      <div id="summary-charts-container" style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- Loaded dynamically -->
+      </div>
+    </section>
+
+    <!-- Panel 2: Individual scroll lists -->
+    <section id="panel-individual" class="responses-panel" style="display: none;">
+      <!-- Navigator bar -->
+      <div class="glass-panel individual-navigator no-print">
+        <button class="btn btn-secondary" id="indiv-prev-btn" style="padding: 6px 12px;">
+          <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i> Previous
+        </button>
+        <span style="font-weight: 600;" id="individual-index-label">Response 1 of 1</span>
+        <button class="btn btn-secondary" id="indiv-next-btn" style="padding: 6px 12px;">
+          Next <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+        </button>
+      </div>
+
+      <div class="glass-card" style="margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-light); padding-bottom: 16px; margin-bottom: 16px;">
+          <div>
+            <div style="font-size: 12px; color: var(--text-secondary);">Respondent Email</div>
+            <strong id="indiv-email-label" style="font-size: 15px;">anonymous@domain.com</strong>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Submitted Time</div>
+            <span id="indiv-time-label" style="font-size: 13px;">N/A</span>
+          </div>
+        </div>
+
+        <!-- Answers layout panel -->
+        <div id="individual-answers-canvas" style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Delete button -->
+        <div style="text-align: right; margin-top: 24px; border-top: 1px solid var(--border-light); padding-top: 16px;" class="no-print">
+          <button class="btn btn-danger" id="delete-individual-btn">
+            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Delete Response
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/theme.js"></script>
+  <script src="js/utils.js"></script>
+    <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/responses.js"></script>
+</body>
+</html>

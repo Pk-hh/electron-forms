@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Electron Forms</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- QRCode CDN for Sharing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar glass-panel">
+      <div class="sidebar-brand">
+        <i data-lucide="check-square" style="color: var(--accent-color); width: 28px; height: 28px;"></i>
+        <span>Electron Forms</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-nav-item active" id="nav-all-forms" data-tab="all">
+          <i data-lucide="layout"></i>
+          <span>My Forms</span>
+        </div>
+        <div class="sidebar-nav-item" id="nav-draft-forms" data-tab="draft">
+          <i data-lucide="edit-3"></i>
+          <span>Drafts</span>
+        </div>
+        <div class="sidebar-nav-item" id="nav-published-forms" data-tab="published">
+          <i data-lucide="globe"></i>
+          <span>Published</span>
+        </div>
+        <div class="sidebar-nav-item" id="nav-favorite-forms" data-tab="favorite">
+          <i data-lucide="star"></i>
+          <span>Favorites</span>
+        </div>
+        <div class="sidebar-nav-item" id="nav-archived-forms" data-tab="archived">
+          <i data-lucide="archive"></i>
+          <span>Archived</span>
+        </div>
+
+        <!-- Folder List -->
+        <div class="folder-list">
+          <div class="folder-header">
+            <span>Folders</span>
+            <button class="btn-icon" style="width: 20px; height: 20px; border: none; background: transparent; padding: 0;" onclick="Utils.openModal('create-folder-modal')">
+              <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+            </button>
+          </div>
+          <div id="folders-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div style="border-top: 1px solid var(--border-light); padding-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+        <a href="profile.html" class="sidebar-nav-item">
+          <i data-lucide="user"></i>
+          <span>Profile Settings</span>
+        </a>
+        <button id="theme-toggle-btn" class="sidebar-nav-item" style="background: transparent; border: none; width: 100%; text-align: left;">
+          <i data-lucide="moon"></i>
+          <span>Toggle Theme</span>
+        </button>
+        <button id="signout-btn" class="sidebar-nav-item" style="background: transparent; border: none; width: 100%; text-align: left; color: var(--danger);">
+          <i data-lucide="log-out"></i>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="dashboard-main">
+      <!-- Header -->
+      <header class="dashboard-header glass-panel">
+        <div class="header-search">
+          <i data-lucide="search"></i>
+          <input type="text" id="search-input" class="form-control" placeholder="Search forms by title...">
+        </div>
+
+        <div class="header-user">
+          <span style="font-weight: 500; font-size: 14px;" id="username-display">Creative Creator</span>
+          <img src="" id="user-avatar-display" class="user-avatar" alt="Avatar">
+        </div>
+      </header>
+
+      <!-- Stats Grid -->
+      <section class="stats-grid">
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background: var(--accent-light); color: var(--accent-color);">
+            <i data-lucide="file-text"></i>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-total-forms">0</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">Total Forms</div>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+            <i data-lucide="message-square"></i>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-total-responses">0</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">Total Responses</div>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
+            <i data-lucide="eye"></i>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-total-views">0</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">Total Views</div>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899;">
+            <i data-lucide="trending-up"></i>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-completion-rate">0%</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">Completion Rate</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Forms Grid -->
+      <section class="forms-section">
+        <div class="section-title-bar">
+          <h2 id="section-title">All Forms</h2>
+          <button class="btn btn-primary" onclick="Utils.openModal('templates-modal')">
+            <i data-lucide="plus"></i>
+            Create New Form
+          </button>
+        </div>
+
+        <div class="forms-grid" id="forms-grid-container">
+          <!-- Create Form Card -->
+          <div class="glass-card create-card" onclick="Utils.openModal('templates-modal')">
+            <i data-lucide="plus-circle" style="width: 32px; height: 32px; color: var(--text-secondary);"></i>
+            <span style="font-weight: 500; font-size: 14px; color: var(--text-secondary);">Blank Form / Templates</span>
+          </div>
+
+          <!-- Forms will be dynamically rendered here -->
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <!-- Modal: Templates Selector -->
+  <div class="modal-overlay" id="templates-modal">
+    <div class="modal-content glass-panel" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3>Choose a Template</h3>
+        <button class="btn-icon" data-dismiss="modal" style="border: none; background: transparent;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      
+      <!-- List templates -->
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+        <div class="template-item" id="create-blank-btn" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; border: 2px dashed var(--border-medium);">
+          <i data-lucide="file" style="width: 28px; height: 28px; color: var(--accent-color); margin-bottom: 8px;"></i>
+          <span style="font-weight: 600; font-size: 14px;">Blank Form</span>
+        </div>
+        <!-- Templates container -->
+        <div id="templates-list-container" style="display: contents;">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+      <div style="text-align: right;">
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create Folder -->
+  <div class="modal-overlay" id="create-folder-modal">
+    <div class="modal-content glass-panel" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3>Create New Folder</h3>
+        <button class="btn-icon" data-dismiss="modal" style="border: none; background: transparent;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="create-folder-form">
+        <div class="form-group">
+          <label for="folder-name-input" class="form-label">Folder Name</label>
+          <input type="text" id="folder-name-input" class="form-control" placeholder="e.g. Q3 Sales Feedback" required>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Share Form -->
+  <div class="modal-overlay" id="share-modal">
+    <div class="modal-content glass-panel" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>Share Your Form</h3>
+        <button class="btn-icon" data-dismiss="modal" style="border: none; background: transparent;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      
+      <!-- Tabs for share methods -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+        <button class="btn btn-text active" id="share-tab-link-btn" onclick="switchShareTab('link')">Link</button>
+        <button class="btn btn-text" id="share-tab-embed-btn" onclick="switchShareTab('embed')">Embed</button>
+        <button class="btn btn-text" id="share-tab-qr-btn" onclick="switchShareTab('qr')">QR Code</button>
+      </div>
+
+      <!-- Link Tab -->
+      <div id="share-panel-link" class="share-panel">
+        <div class="form-group">
+          <label class="form-label">Public Link</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="share-link-input" class="form-control" readonly>
+            <button class="btn btn-primary" onclick="copyShareText('share-link-input')">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Embed Tab -->
+      <div id="share-panel-embed" class="share-panel" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">Embed HTML Code</label>
+          <div style="display: flex; gap: 8px;">
+            <textarea id="share-embed-input" class="form-control" readonly rows="3" style="resize: none;"></textarea>
+            <button class="btn btn-primary" onclick="copyShareText('share-embed-input')" style="align-self: flex-end;">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR Code Tab -->
+      <div id="share-panel-qr" class="share-panel" style="display: none; text-align: center; padding: 10px;">
+        <div id="qrcode-container" style="display: inline-block; padding: 10px; background: white; border-radius: var(--radius-md); margin-bottom: 12px;"></div>
+        <p style="font-size: 13px; color: var(--text-secondary);">Scan this QR Code to load and submit responses.</p>
+      </div>
+      
+      <div style="text-align: right; margin-top: 20px;">
+        <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/theme.js"></script>
+  <script src="js/utils.js"></script>
+    <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
