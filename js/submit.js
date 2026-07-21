@@ -84,6 +84,21 @@ function initPublicForm() {
     document.documentElement.style.setProperty('--accent-color', safeColor);
     document.documentElement.style.setProperty('--font-sans', formSchema.theme.font || 'var(--font-sans)');
     
+    // Extract RGB values dynamically to set --accent-color-rgb CSS custom property
+    try {
+      const tempDiv = document.createElement('div');
+      tempDiv.style.color = safeColor;
+      document.body.appendChild(tempDiv);
+      const computedColor = window.getComputedStyle(tempDiv).color;
+      document.body.removeChild(tempDiv);
+      const rgbMatches = computedColor.match(/\d+/g);
+      if (rgbMatches && rgbMatches.length >= 3) {
+        document.documentElement.style.setProperty('--accent-color-rgb', `${rgbMatches[0]}, ${rgbMatches[1]}, ${rgbMatches[2]}`);
+      }
+    } catch (e) {
+      console.warn("Failed to dynamically compute accent color RGB: ", e);
+    }
+    
     // Header cards color
     const head = document.getElementById('metadata-header-card');
     if (head) head.style.borderTopColor = safeColor;
@@ -195,9 +210,19 @@ function initPublicForm() {
     e.preventDefault();
     if (!validateCurrentPageInputs()) return;
 
+    const submitBtn = document.getElementById('form-submit-btn');
+    const originalBtnHTML = submitBtn.innerHTML;
+
+    // Prevent duplicate submissions
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `Submitting... <i class="loader-spinner"></i>`;
+
     if (isPreviewMode) {
       Utils.showToast("Submissions are simulated in Preview mode.", "success");
       showThankYouCard();
+      // restore button just in case, though thank you page hides it
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHTML;
       return;
     }
 
@@ -220,6 +245,9 @@ function initPublicForm() {
     } catch (error) {
       console.error("Form submission failed:", error);
       Utils.showToast(`Submission failed: ${error.message || error}`, "error");
+      // Re-enable button and restore label on failure
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHTML;
     }
   });
 }
@@ -430,7 +458,7 @@ function renderSubmissionInputControl(q) {
           ${Array.from({ length: (maxVal - minVal + 1) }).map((_, idx) => {
             const score = minVal + idx;
             return `
-              <label style="display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex-grow: 1; text-align: center; padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-md); background: var(--glass-bg);">
+              <label class="choice-card ${rangeVal === score ? 'selected' : ''}" style="display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex-grow: 1; text-align: center; padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-md); background: var(--glass-bg);">
                 <input type="radio" name="q-${q.id}" value="${score}" ${rangeVal === score ? 'checked' : ''}>
                 <span style="font-size: 13px; font-weight: 600;">${score}</span>
               </label>
@@ -466,27 +494,42 @@ function bindControlChangeEvents(cardEl, q) {
   // Star rating handler
   const starsContainer = cardEl.querySelector('.submit-rating-stars');
   if (starsContainer) {
+    const stars = starsContainer.querySelectorAll('[data-score]');
+    
+    const updateStarsDisplay = (score) => {
+      stars.forEach((s, idx) => {
+        if (idx < score) {
+          s.classList.add('active');
+          s.style.color = '#fbbf24';
+          s.style.fill = '#fbbf24';
+        } else {
+          s.classList.remove('active');
+          s.style.color = 'var(--text-tertiary)';
+          s.style.fill = 'none';
+        }
+      });
+    };
+
     starsContainer.addEventListener('click', (e) => {
       const star = e.target.closest('[data-score]');
       if (star) {
         const score = parseInt(star.getAttribute('data-score'));
         userAnswers[q.id] = score;
-        
-        // Re-render filled classes on stars (which are now SVG elements)
-        starsContainer.querySelectorAll('[data-score]').forEach((s, idx) => {
-          if (idx < score) {
-            s.classList.add('active');
-            s.style.color = '#fbbf24';
-            s.style.fill = '#fbbf24';
-          } else {
-            s.classList.remove('active');
-            s.style.color = 'var(--text-tertiary)';
-            s.style.fill = 'none';
-          }
-        });
-        
+        updateStarsDisplay(score);
         checkConditionalVisibilityRulesCascade();
       }
+    });
+
+    stars.forEach(star => {
+      star.addEventListener('mouseenter', () => {
+        const score = parseInt(star.getAttribute('data-score'));
+        updateStarsDisplay(score);
+      });
+    });
+
+    starsContainer.addEventListener('mouseleave', () => {
+      const currentScore = parseInt(userAnswers[q.id]) || 0;
+      updateStarsDisplay(currentScore);
     });
   }
 
@@ -557,12 +600,12 @@ function bindControlChangeEvents(cardEl, q) {
     });
   });
 
-  // MCQ / Yes-No Radio choices
+  // MCQ / Yes-No / Linear Scale Radio choices
   cardEl.querySelectorAll('input[type="radio"]').forEach(rad => {
     rad.addEventListener('change', (e) => {
       if (e.target.checked) {
         // Remove selected class from all option siblings in same radio card group
-        const wrapper = rad.closest('.choice-card-wrapper');
+        const wrapper = rad.closest('.choice-card-wrapper') || rad.closest('.linear-scale-group');
         if (wrapper) {
           wrapper.querySelectorAll('.choice-card').forEach(cc => cc.classList.remove('selected'));
         }

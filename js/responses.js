@@ -42,6 +42,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Delete individual response
     document.getElementById('delete-individual-btn').addEventListener('click', deleteActiveResponse);
 
+    // Sort dropdown change listener
+    const sortSelect = document.getElementById('responses-sort-select');
+    if (sortSelect) {
+      sortSelect.addEventListener('change', () => {
+        applySorting();
+        individualIndex = 0; // Reset index to first response of sorted order
+        if (formResponses.length > 0) {
+          renderSummaryView();
+          renderIndividualResponse();
+        }
+      });
+    }
+
     // Export binds
     document.getElementById('export-csv-btn').addEventListener('click', exportToCSV);
     document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
@@ -56,8 +69,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function fetchResponses() {
   formResponses = await window.db.getResponses(formId);
   
-  // Sort responses chronologically (newest first)
-  formResponses.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+  // Sort responses according to the current selection (defaults to FCFS / oldest first)
+  applySorting();
 
   // Render metrics
   const views = formSchema.views || 0;
@@ -76,6 +89,19 @@ async function fetchResponses() {
     document.getElementById('summary-charts-container').style.display = 'flex';
     renderSummaryView();
     renderIndividualResponse();
+  }
+}
+
+// Sort formResponses array in place
+function applySorting() {
+  const sortSelect = document.getElementById('responses-sort-select');
+  const val = sortSelect ? sortSelect.value : 'fcfs';
+  if (val === 'newest') {
+    // Newest first
+    formResponses.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+  } else {
+    // First-come first-served (oldest first)
+    formResponses.sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt));
   }
 }
 
