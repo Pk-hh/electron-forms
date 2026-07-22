@@ -223,11 +223,11 @@
 
   /* Public form.html responsive padding */
   body:has(.form-submit-container) {
-    padding: 20px 12px !important;
+    padding: 10px 12px 30px 12px !important;
   }
   
   .form-submit-container {
-    margin-top: 30px !important;
+    margin-top: 5px !important;
     margin-bottom: 30px !important;
   }
   
