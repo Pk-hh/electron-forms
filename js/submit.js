@@ -494,10 +494,9 @@ function bindControlChangeEvents(cardEl, q) {
   // Star rating handler
   const starsContainer = cardEl.querySelector('.submit-rating-stars');
   if (starsContainer) {
-    const stars = starsContainer.querySelectorAll('[data-score]');
-    
     const updateStarsDisplay = (score) => {
-      stars.forEach((s, idx) => {
+      const currentStars = starsContainer.querySelectorAll('[data-score]');
+      currentStars.forEach((s, idx) => {
         if (idx < score) {
           s.classList.add('active');
           s.style.color = '#fbbf24';
@@ -520,11 +519,12 @@ function bindControlChangeEvents(cardEl, q) {
       }
     });
 
-    stars.forEach(star => {
-      star.addEventListener('mouseenter', () => {
+    starsContainer.addEventListener('mouseover', (e) => {
+      const star = e.target.closest('[data-score]');
+      if (star) {
         const score = parseInt(star.getAttribute('data-score'));
         updateStarsDisplay(score);
-      });
+      }
     });
 
     starsContainer.addEventListener('mouseleave', () => {

@@ -225,18 +225,21 @@
       color: var(--text-tertiary);
     }
 
-    .submit-rating-stars i {
+    .submit-rating-stars i,
+    .submit-rating-stars svg {
       cursor: pointer;
       transition: transform var(--transition-fast), color var(--transition-fast);
     }
 
-    .submit-rating-stars i.active {
+    .submit-rating-stars i.active,
+    .submit-rating-stars svg.active {
       color: #fbbf24;
       fill: #fbbf24;
       filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5));
     }
 
-    .submit-rating-stars i:hover {
+    .submit-rating-stars i:hover,
+    .submit-rating-stars svg:hover {
       transform: scale(1.15);
     }
 
