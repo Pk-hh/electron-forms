@@ -510,8 +510,14 @@ function bindControlChangeEvents(cardEl, q) {
     };
 
     starsContainer.addEventListener('click', (e) => {
-      const star = e.target.closest('[data-score]');
-      if (star) {
+      let star = e.target;
+      while (star && star !== starsContainer) {
+        if (star.getAttribute && star.getAttribute('data-score')) {
+          break;
+        }
+        star = star.parentNode;
+      }
+      if (star && star !== starsContainer) {
         const score = parseInt(star.getAttribute('data-score'));
         userAnswers[q.id] = score;
         updateStarsDisplay(score);
@@ -519,9 +525,16 @@ function bindControlChangeEvents(cardEl, q) {
       }
     });
 
-    starsContainer.addEventListener('mouseover', (e) => {
-      const star = e.target.closest('[data-score]');
-      if (star) {
+    starsContainer.addEventListener('pointerover', (e) => {
+      if (e.pointerType === 'touch') return;
+      let star = e.target;
+      while (star && star !== starsContainer) {
+        if (star.getAttribute && star.getAttribute('data-score')) {
+          break;
+        }
+        star = star.parentNode;
+      }
+      if (star && star !== starsContainer) {
         const score = parseInt(star.getAttribute('data-score'));
         updateStarsDisplay(score);
       }
